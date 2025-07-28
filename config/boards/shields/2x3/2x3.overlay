@@ -10,7 +10,7 @@
     default_kscan: kscan0 {
         compatible = "zmk,kscan-gpio-matrix";
         label = "default_kcan";
-        diode-drrection = "col2row";
+        diode-direction = "col2row";
 
         row-gpios 
             =   <&xiao_d 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>,
