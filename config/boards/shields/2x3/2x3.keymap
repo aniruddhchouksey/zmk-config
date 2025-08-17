@@ -13,8 +13,8 @@
             // |     A     |     B     |     C     |
             // |     D     |     E     |     F     |
             bindings = <
-                &kp Z    &kp M    &mo 1
-                &kp A    &kp B    &kp C
+                &kp Z    &kp M    &mo A
+                &bt BT_PRV    &bt BT_CLR    &bt BT_NXT
             >;
         };
 
