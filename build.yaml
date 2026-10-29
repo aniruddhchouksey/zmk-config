@@ -22,3 +22,8 @@ include:
   # ZMK requires the //zmk board variant; see zmk/app/boards/seeed/xiao_ble/xiao_ble.zmk.yml
   - board: xiao_ble//zmk
     shield: 2x3
+    # The v0.3 reusable workflow derives the artifact name from the board string
+    # without sanitizing "/", so it tries to cp to ".../2x3-xiao_ble//zmk-zmk.uf2"
+    # and fails. Newer ZMK sanitizes it (${board//\//_}); pin an explicit name so
+    # this works on either workflow version.
+    artifact-name: 2x3-xiao_ble
