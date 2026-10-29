@@ -27,3 +27,8 @@ include:
     # and fails. Newer ZMK sanitizes it (${board//\//_}); pin an explicit name so
     # this works on either workflow version.
     artifact-name: 2x3-xiao_ble
+  - board: xiao_ble//zmk
+    shield: 3x3
+    # ZMK Studio is enabled inside the shield itself (3x3.conf + 3x3.overlay),
+    # so no `snippet:` is needed here and CI matches local builds exactly.
+    artifact-name: 3x3-xiao_ble

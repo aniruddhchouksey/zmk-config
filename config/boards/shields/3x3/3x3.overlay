@@ -1,0 +1,110 @@
+#include <dt-bindings/zmk/matrix_transform.h>
+#include <physical_layouts.dtsi>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,physical-layout = &physical_layout0;
+        // ZMK Studio talks to the host over this CDC ACM UART.
+        zmk,studio-rpc-uart = &studio_rpc_uart;
+    };
+
+    /*
+     * NOTE: the Studio UART node itself is defined at the bottom of this file,
+     * under &zephyr_udc0, because a CDC ACM UART must be a child of the USB
+     * device controller.
+     */
+
+    kscan0: kscan0 {
+        compatible = "zmk,kscan-gpio-matrix";
+        wakeup-source;
+
+        /*
+         * Rows are driven high one at a time, columns are read.
+         *
+         * The diodes in this build are fitted with the band (cathode) facing the
+         * COLUMN wire, so current flows row -> column. With the default
+         * "col2row" (which expects the band on the row wire) every key read dead
+         * while jumper bridges on the raw pins still worked. If the diodes are
+         * ever reflowed or the matrix rebuilt with the opposite orientation,
+         * this must go back to "col2row" with the pull-downs on the rows.
+         */
+        diode-direction = "row2col";
+
+        // Rows are outputs: no pull, just drive high.
+        row-gpios
+            = <&xiao_d 0 GPIO_ACTIVE_HIGH>,
+              <&xiao_d 1 GPIO_ACTIVE_HIGH>,
+              <&xiao_d 2 GPIO_ACTIVE_HIGH>;
+
+        // Columns are inputs, so they carry the pull-down that keeps them low
+        // while idle; a pressed key pulls its column high when that row is driven.
+        col-gpios
+            = <&xiao_d 3 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>,
+              <&xiao_d 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>,
+              <&xiao_d 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+    };
+
+    default_transform: matrix_transform {
+        compatible = "zmk,matrix-transform";
+        rows = <3>;
+        columns = <3>;
+        // Key order below is the order bindings appear in the keymap.
+        map = <
+            RC(0,0) RC(0,1) RC(0,2)
+            RC(1,0) RC(1,1) RC(1,2)
+            RC(2,0) RC(2,1) RC(2,2)
+        >;
+    };
+
+    // Makes ZMK enumerate physical_layout0 as the one and only layout, which
+    // ZMK Studio needs in order to list the keyboard's layout. `complete` with
+    // no children means the single layout maps to itself, so no entry list is
+    // needed until a second layout exists.
+    position_map: position_map {
+        compatible = "zmk,physical-layout-position-map";
+        complete;
+    };
+
+    physical_layout0: physical_layout_0 {
+        compatible = "zmk,physical-layout";
+        display-name = "Default Layout";
+        kscan = <&kscan0>;
+        transform = <&default_transform>;
+        // Required by ZMK Studio: it needs to know each key's physical size and
+        // position on the board to render the layout in the browser editor.
+        //                          w   h    x    y   rot  rx  ry
+        keys
+            = <&key_physical_attrs 100 100    0    0   0   0   0>
+            , <&key_physical_attrs 100 100  100    0   0   0   0>
+            , <&key_physical_attrs 100 100  200    0   0   0   0>
+            , <&key_physical_attrs 100 100    0  100   0   0   0>
+            , <&key_physical_attrs 100 100  100  100   0   0   0>
+            , <&key_physical_attrs 100 100  200  100   0   0   0>
+            , <&key_physical_attrs 100 100    0  200   0   0   0>
+            , <&key_physical_attrs 100 100  100  200   0   0   0>
+            , <&key_physical_attrs 100 100  200  200   0   0   0>
+            ;
+    };
+};
+
+// Studio's CDC ACM transport lives on the USB device controller, so it cannot
+// be declared at the root of the devicetree.
+// This replicates app/snippets/studio-rpc-usb-uart/studio-rpc-usb-uart.overlay.
+&zephyr_udc0 {
+    studio_rpc_uart: studio_rpc_uart {
+        compatible = "zephyr,cdc-acm-uart";
+    };
+};
+
+/*
+ * This shield does NOT touch any peripheral status.
+ *
+ * D4/D5 are deliberately unused here: the XIAO BLE board def leaves &i2c1 enabled
+ * with its pinctrl on P0.04 (D4) and P0.05 (D5), so those pads stay reserved for a
+ * future I2C OLED. D8/D9/D10 likewise stay free for an EC11 encoder later (&spi2 is
+ * enabled by the board def on those pads, but the encoder uses plain GPIO, so
+ * &spi2 must be disabled when that phase starts).
+ *
+ * D6/D7 are safe to use: ZMK's board dts already disables &xiao_serial (uart0).
+ */
