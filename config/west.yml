@@ -1,6 +1,8 @@
 manifest:
   defaults:
-    revision: v0.2
+    # Pinned to the same ZMK commit used for local builds so CI and local
+    # firmware match. (Was v0.2, which predates the xiao_ble//zmk board IDs.)
+    revision: 4dd95d7840eb3d5a3f59bb29fbf1ab054715ef85
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware

@@ -7,22 +7,33 @@
     keymap {
         compatible = "zmk,keymap";
 
+        // Bridging a ROW pin to a COLUMN pin presses the key at that position.
+        //   row 0 = D5   row 1 = D6
+        //   col 0 = D2   col 1 = D3   col 2 = D4
+        // e.g. D5-D2 = A
         default_layer { // Layer 0
             // -------------------------------------
-            // |     Z     |     M     |     K     |
             // |     A     |     B     |     C     |
-            // |     D     |     E     |     F     |
+            // |     D     |     E     | toggle L1 |
+            // -------------------------------------
             bindings = <
-                &kp Z    &kp M    &mo A
-                &bt BT_PRV    &bt BT_CLR    &bt BT_NXT
+                &kp A    &kp B    &kp C
+                &kp D    &kp E    &tog 1
             >;
         };
 
-        bt_layer {
+        // Toggle (not hold) so a single jumper wire can drive the keyboard:
+        // bridge D6-D4 once to switch to this layer, use any pair below, then
+        // bridge D6-D4 again to come back.
+        bt_layer { // Layer 1
+            // -------------------------------------
+            // |  out BLE  |  BT SEL 0 |  BT SEL 1 |
+            // |  out USB  |  BT CLR   | back to L0|
+            // -------------------------------------
             bindings = <
-                &bootloader  &bt BT_SEL 0   &kp A
-                &bt BT_PRV &bt BT_CLR &bt BT_NXT
+                &out OUT_BLE  &bt BT_SEL 0  &bt BT_SEL 1
+                &out OUT_USB  &bt BT_CLR    &tog 1
             >;
         };
     };
- };
+};

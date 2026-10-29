@@ -40,3 +40,13 @@
     };
 
 };
+
+/*
+ * The XIAO BLE board def enables i2c1 (alias &xiao_i2c), whose pinctrl claims
+ * P0.04 (D4) and P0.05 (D5). This shield uses both of those for the key matrix,
+ * so the I2C peripheral must be turned off or it steals the pads and those keys
+ * never register. Note: that also means no I2C peripherals (OLED, etc.) on D4/D5.
+ */
+&i2c1 {
+    status = "disabled";
+};

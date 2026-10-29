@@ -19,6 +19,6 @@
 #
 ---
 include:
-  - board: seeeduino_xiao_ble
+  # ZMK requires the //zmk board variant; see zmk/app/boards/seeed/xiao_ble/xiao_ble.zmk.yml
+  - board: xiao_ble//zmk
     shield: 2x3
-    snippet: zmk-usb-logging
